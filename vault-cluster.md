@@ -163,7 +163,7 @@ seal "awskms" {
 EOF
 
 =========================================
-Run this each vault server
+Run this each script each vault server
 
 ```
 sudo chmod 0644 /lib/systemd/system/vault.service
