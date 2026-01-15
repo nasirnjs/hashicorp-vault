@@ -49,7 +49,7 @@ Vault configuration parameters [Referencfes](https://developer.hashicorp.com/vau
 `cat /usr/lib/systemd/system/vault.service`\
 You will see configuration file location `ExecStart=/usr/bin/vault server -config=/etc/vault.d/vault.hcl`
 
-`sudo vim /etc/vault.d/vault.hcl`
+`sudo cat /etc/vault.d/vault.hcl`
 
 `vault version`
 
@@ -71,9 +71,19 @@ You will see configuration file location `ExecStart=/usr/bin/vault server -confi
 
 ## Create Configuration File
 
-`sudo mkdir -p /var/vault/raft/data `
+```bash
+sudo mkdir -p /var/vault/raft/data
+```
+```bash
+sudo chown -R vault:vault /var/vault/raft
+```
+```bash
+sudo cp /etc/vault.d/vault.hcl /etc/vault.d/vault.hcl.backup
+```
+```bash
+sudo vim /etc/vault.d/vault.hcl
+```
 
-`sudo chown -R vault:vault /var/vault/raft`
 
 ```bash
 ui = true
@@ -194,7 +204,7 @@ vault write aws/roles/vault-user-role \
 - After the TTL expires, Vault (if configured properly) revokes and deletes the IAM user.
 
 
-```
+```bash
 vault write aws/roles/my-ec2-role \
         credential_type=iam_user \
         policy_document=-EOF
@@ -241,8 +251,19 @@ Vault policies are used to control access management—who can do what in Vault.
 
 **Vault master**
 
-`sudo vim /etc/vault.d/vault.hcl`
+```bash
+sudo mkdir -p /var/vault/raft/data
+```
+```bash
+sudo chown -R vault:vault /var/vault/raft
+```
+```bash
+sudo cp /etc/vault.d/vault.hcl /etc/vault.d/vault.hcl.backup
+```
 
+```bash
+sudo vim /etc/vault.d/vault.hcl
+```
 ```bash
 listener "tcp" {
   address          = "0.0.0.0:8200"
@@ -278,9 +299,19 @@ disable_mlock = true
 
 
 **Vault-2**
+```bash
+sudo mkdir -p /var/vault/raft/data
+```
+```bash
+sudo chown -R vault:vault /var/vault/raft
+```
 
-`sudo vim /etc/vault.d/vault.hcl`
-
+```bash
+sudo cp /etc/vault.d/vault.hcl /etc/vault.d/vault.hcl.backup
+```
+```bash
+sudo vim /etc/vault.d/vault.hcl
+```
 ```bash
 listener "tcp" {
   address          = "0.0.0.0:8200"
@@ -319,9 +350,19 @@ disable_mlock = true
 
 
 **Vault-3**
+```bash
+sudo mkdir -p /var/vault/raft/data
+```
+```bash
+sudo chown -R vault:vault /var/vault/raft
+```
+```bash
+sudo cp /etc/vault.d/vault.hcl /etc/vault.d/vault.hcl.backup
+```
 
-`sudo vim /etc/vault.d/vault.hcl`
-
+```bash
+sudo vim /etc/vault.d/vault.hcl
+```
 ```bash
 listener "tcp" {
   address          = "0.0.0.0:8200"
@@ -374,20 +415,6 @@ vault status
 ```
 
 ## Vault Auto unseal with AWS KMS
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
