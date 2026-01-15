@@ -1,4 +1,23 @@
 
+- [What is HashiCorp Vault 🔐?](#what-is-hashicorp-vault-)
+  - [When Vault starts, it is in a sealed state](#when-vault-starts-it-is-in-a-sealed-state)
+  - [How Encryption Works in Vault](#how-encryption-works-in-vault)
+  - [Install Vault](#install-vault)
+  - [Vault Server in Production](#vault-server-in-production)
+    - [How does vault Protect my Data](#how-does-vault-protect-my-data)
+  - [Create Configuration File](#create-configuration-file)
+  - [Initialize Vault](#initialize-vault)
+  - [Unseal Vault](#unseal-vault)
+  - [Vault secrets engine](#vault-secrets-engine)
+    - [What Secrets Engines Are Available?](#what-secrets-engines-are-available)
+    - [Now comes enabling secrets engines.](#now-comes-enabling-secrets-engines)
+  - [Enable the AWS Secrets Engine](#enable-the-aws-secrets-engine)
+  - [Configure the AWS Secrets Engine](#configure-the-aws-secrets-engine)
+  - [Vault policy](#vault-policy)
+- [Build a HashiCorp Vault Cluster Manually](#build-a-hashicorp-vault-cluster-manually)
+  - [Vault Auto unseal with AWS KMS](#vault-auto-unseal-with-aws-kms)
+
+
 
 # What is HashiCorp Vault 🔐?
 
@@ -247,7 +266,7 @@ Vault policies are used to control access management—who can do what in Vault.
 
 
 
-## Build a HashiCorp Vault Cluster Manually
+# Build a HashiCorp Vault Cluster Manually
 
 **Vault master**
 
@@ -292,6 +311,8 @@ disable_mlock = true
 `export VAULT_ADDR='http://127.0.0.1:8200'`
 
 `vault operator init`
+
+`vault status`
 
 `vault operator unseal lP70cV8GS03q5nX+`
 
