@@ -260,7 +260,9 @@ sudo chown -R vault:vault /var/vault/raft
 ```bash
 sudo cp /etc/vault.d/vault.hcl /etc/vault.d/vault.hcl.backup
 ```
-
+```bash
+sudo systemctl stop vault.service
+```
 ```bash
 sudo vim /etc/vault.d/vault.hcl
 ```
@@ -293,7 +295,11 @@ disable_mlock = true
 
 `vault operator unseal lP70cV8GS03q5nX+`
 
-`vault login`
+`vault operator unseal lP70cV8GS03q5nX+`
+
+`vault operator unseal lP70cV8GS03q5nX+`
+
+`vault login <ROOT_TOKEN>`
 
 `vault operator raft list-peers`
 
@@ -308,6 +314,9 @@ sudo chown -R vault:vault /var/vault/raft
 
 ```bash
 sudo cp /etc/vault.d/vault.hcl /etc/vault.d/vault.hcl.backup
+```
+```bash
+sudo systemctl stop vault.service
 ```
 ```bash
 sudo vim /etc/vault.d/vault.hcl
@@ -361,6 +370,9 @@ sudo cp /etc/vault.d/vault.hcl /etc/vault.d/vault.hcl.backup
 ```
 
 ```bash
+sudo systemctl stop vault.service
+```
+```bash
 sudo vim /etc/vault.d/vault.hcl
 ```
 ```bash
@@ -375,7 +387,7 @@ cluster_addr = "http://172.17.18.252:8201"
 
 storage "raft" {
   path    = "/var/vault/raft/data"
-  node_id = "vault-2"
+  node_id = "vault-3"
   retry_join {
     leader_api_addr = "http://172.17.18.250:8200"
   }
