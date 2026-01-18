@@ -1,5 +1,12 @@
 
 
+## Create KMS
+
+
+## Create a IAM User and Make a policy allow only KMS
+
+
+## Export IAM User Access and and Secreat Key (Use Case Third-party service)
 
 ## Install Vault (All Nodes)
 There are several methods to install Vault, but the recommended way is to use HashiCorp's official APT repository. This ensures you get the latest stable and secure version with proper support. [Here](https://developer.hashicorp.com/vault/install) the step-by-step installation process for Vault on Ubuntu.
@@ -62,11 +69,30 @@ ui = true
 seal "awskms" {
   region     = "us-east-2"
   kms_key_id = "85c75274-f5af-4481-9ee4-cee25b573a88"
-
-  access_key = ""
-  secret_key = ""
 }
 ```
+
+
+`sudo vim /etc/vault.d/vault.env`
+```bash
+AWS_ACCESS_KEY_ID=YourAccessKey
+AWS_SECRET_ACCESS_KEY=YourAccessKey
+AWS_DEFAULT_REGION=us-east-2
+```
+
+`sudo chown vault:vault /etc/vault.d/vault.env`
+
+`sudo chmod 600 /etc/vault.d/vault.env`
+
+`sudo vim /usr/lib/systemd/system/vault.service`
+
+```bash
+[Service]
+EnvironmentFile=/etc/vault.d/vault.env
+```
+`sudo systemctl daemon-reload`
+
+`sudo systemctl restart vault`
 
 `sudo systemctl start vault.service`
 
@@ -124,12 +150,29 @@ ui = true
 seal "awskms" {
   region     = "us-east-2"
   kms_key_id = "85c75274-f5af-4481-9ee4-cee25b573a88"
-  access_key = ""
-  secret_key = ""
 }
 ```
 
-`sudo -u vault vault server -config=/etc/vault.d/vault.hcl`
+`sudo vim /etc/vault.d/vault.env`
+```bash
+AWS_ACCESS_KEY_ID=YourAccessKey
+AWS_SECRET_ACCESS_KEY=YourAccessKey
+AWS_DEFAULT_REGION=us-east-2
+```
+
+`sudo chown vault:vault /etc/vault.d/vault.env`
+
+`sudo chmod 600 /etc/vault.d/vault.env`
+
+`sudo vim /usr/lib/systemd/system/vault.service`
+
+```bash
+[Service]
+EnvironmentFile=/etc/vault.d/vault.env
+```
+`sudo systemctl daemon-reload`
+
+`sudo systemctl restart vault`
 
 `sudo systemctl start vault.service`
 
@@ -184,12 +227,29 @@ ui = true
 seal "awskms" {
   region     = "us-east-2"
   kms_key_id = "85c75274-f5af-4481-9ee4-cee25b573a88"
-
-  access_key = ""
-  secret_key = ""
 }
 
 ```
+`sudo vim /etc/vault.d/vault.env`
+```bash
+AWS_ACCESS_KEY_ID=YourAccessKey
+AWS_SECRET_ACCESS_KEY=YourAccessKey
+AWS_DEFAULT_REGION=us-east-2
+```
+
+`sudo chown vault:vault /etc/vault.d/vault.env`
+
+`sudo chmod 600 /etc/vault.d/vault.env`
+
+`sudo vim /usr/lib/systemd/system/vault.service`
+
+```bash
+[Service]
+EnvironmentFile=/etc/vault.d/vault.env
+```
+`sudo systemctl daemon-reload`
+
+`sudo systemctl restart vault`
 
 `sudo systemctl start vault.service`
 
