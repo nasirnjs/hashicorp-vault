@@ -2,11 +2,12 @@
 
 ## Create KMS
 
+## Make a policy allow only KMS attach KMS arn
 
-## Create a IAM User and Make a policy allow only KMS
+## Create a IAM User and add KMS Policy
 
 
-## Export IAM User Access and and Secreat Key (Use Case Third-party service)
+## Export IAM User Access and and Secreat Key (Use Case, Third-party service)
 
 ## Install Vault (All Nodes)
 There are several methods to install Vault, but the recommended way is to use HashiCorp's official APT repository. This ensures you get the latest stable and secure version with proper support. [Here](https://developer.hashicorp.com/vault/install) the step-by-step installation process for Vault on Ubuntu.
@@ -122,6 +123,9 @@ sudo chown -R vault:vault /var/vault/raft
 sudo cp /etc/vault.d/vault.hcl /etc/vault.d/vault.hcl.backup
 ```
 ```bash
+sudo vim /etc/vault.d/vault.hcl
+```
+```bash
 disable_mlock = true
 
 storage "raft" {
@@ -199,6 +203,7 @@ sudo systemctl stop vault.service
 ```
 ```bash
 sudo vim /etc/vault.d/vault.hcl
+```
 ```bash
 disable_mlock = true
 storage "raft" {
