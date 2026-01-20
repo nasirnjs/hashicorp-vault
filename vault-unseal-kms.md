@@ -2,7 +2,24 @@
 
 ## Create KMS
 
-## Make a policy allow only KMS attach KMS arn
+## Make a policy `vault-auto-unseal` allow only KMS attach KMS arn
+
+```bash
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:DescribeKey"
+      ],
+      "Resource": "<KMS_KEY_ARN>"
+    }
+  ]
+}
+```
 
 ## Create a IAM User and add KMS Policy
 
@@ -275,4 +292,90 @@ sudo systemctl stop vault
 # On Node 2 or 3
 vault status
 # Should see one promote to leader within 15-30 seconds
+```
+
+## Vault HAProxy configuration without TLS
+Install HAProxy (on LB server)
+```bash
+sudo apt update
+sudo apt install haproxy -y
+sudo systemctl enable haproxy
+sudo systemctl status haproxy
+```
+
+**HAProxy Configuration for Vault**
+
+```bash
+sudo vim /etc/haproxy/haproxy.cfg
+```
+
+```
+# ===============================
+# HAProxy for Vault Cluster (HTTP only)
+# ===============================
+global
+    log stdout format raw local0
+    maxconn 2000
+    daemon
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    retries 3
+    timeout connect 5s
+    timeout client  50s
+    timeout server  50s
+    timeout check   5s
+# -------------------------------
+# Frontend: Expose Vault to clients
+# -------------------------------
+frontend vault_front
+    bind *:8200
+    default_backend vault_back
+    
+# -------------------------------
+# Backend: Vault nodes (Leader-only traffic)
+# -------------------------------
+backend vault_back
+    balance roundrobin
+
+    # Vault health check
+    option httpchk GET /v1/sys/health
+    http-check expect status 200
+
+    server vault1 192.168.61.121:8200 check
+    server vault2 192.168.61.132:8200 check
+    server vault3 192.168.61.133:8200 check
+
+# -------------------------------
+# HAProxy Stats
+# -------------------------------
+listen stats
+    bind *:8404
+    mode http
+    stats enable
+    stats uri /stats
+    stats refresh 10s
+```
+**Validate config**
+```bash
+sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+```
+
+```bash
+sudo systemctl restart haproxy
+sudo systemctl status haproxy
+```
+
+```bash
+http://HA Proxy IP:8404/stats
+```
+
+```bash
+curl http://10.70.57.21:8200/v1/sys/health
+```
+
+```bash
+http://10.70.57.21:8200/v1/sys/leader
 ```
