@@ -1,19 +1,39 @@
+<h2> HashiCorp Vault High Availability and Auto-Unseal with AWS IAM and KMS </h2>
 
-
-- [Create KMS](#create-kms)
-- [Make a policy `vault-auto-unseal` allow only KMS attach KMS arn](#make-a-policy-vault-auto-unseal-allow-only-kms-attach-kms-arn)
-- [Create a IAM User and add KMS Policy](#create-a-iam-user-and-add-kms-policy)
+- [Create an IAM User for Vault](#create-an-iam-user-for-vault)
+- [Create an AWS KMS Key for Vault Auto-Unseal](#create-an-aws-kms-key-for-vault-auto-unseal)
+- [Create IAM Policy: vault-auto-unseal](#create-iam-policy-vault-auto-unseal)
+- [Attach Policy to the Vault IAM User](#attach-policy-to-the-vault-iam-user)
 - [Export IAM User Access and and Secreat Key (Use Case, Third-party service)](#export-iam-user-access-and-and-secreat-key-use-case-third-party-service)
 - [Install Vault (All Nodes)](#install-vault-all-nodes)
 - [vault-node-1 Configurations](#vault-node-1-configurations)
+- [Vault Environment Configuration and Cluster Initialization](#vault-environment-configuration-and-cluster-initialization)
 - [vault-node-2 Configurations](#vault-node-2-configurations)
+- [Vault Environment Configuration](#vault-environment-configuration)
 - [vault-node-3 Configurations](#vault-node-3-configurations)
+- [Vault Environment Configuration](#vault-environment-configuration-1)
 - [Vault HAProxy configuration without TLS](#vault-haproxy-configuration-without-tls)
 
 
-## Create KMS
+## Create an IAM User for Vault
+HashiCorp Vault requires AWS credentials to communicate with AWS KMS for auto-unsealing.
+A dedicated IAM user (or IAM role in EC2-based deployments) is created to follow the principle of least privilege.
 
-## Make a policy `vault-auto-unseal` allow only KMS attach KMS arn
+**Why this is required**
+
+- Vault must call AWS KMS APIs during startup and restart
+- Auto-unseal removes the need for manual unseal keys
+- Vault stays operational after reboots, crashes, or failovers
+## Create an AWS KMS Key for Vault Auto-Unseal
+
+- Key Type: Symmetric
+- Key Usage: Encrypt and Decrypt
+- Purpose: Vault auto-unsealing master key
+- Region: Same region as Vault servers
+- Rotation: Enabled (recommended)
+
+## Create IAM Policy: vault-auto-unseal
+Attach a minimal IAM policy that allows only the required KMS actions.
 
 ```bash
 {
@@ -31,11 +51,11 @@
   ]
 }
 ```
-
-## Create a IAM User and add KMS Policy
-
+## Attach Policy to the Vault IAM User
+Attach the vault-auto-unseal policy to the dedicated IAM user.
 
 ## Export IAM User Access and and Secreat Key (Use Case, Third-party service)
+Since Vault is running outside AWS IAM Role context, AWS credentials must be provided securely.
 
 ## Install Vault (All Nodes)
 There are several methods to install Vault, but the recommended way is to use HashiCorp's official APT repository. This ensures you get the latest stable and secure version with proper support. [Here](https://developer.hashicorp.com/vault/install) the step-by-step installation process for Vault on Ubuntu.
@@ -100,7 +120,7 @@ seal "awskms" {
   kms_key_id = "85c75274-f5af-4481-9ee4-cee25b573a88"
 }
 ```
-
+## Vault Environment Configuration and Cluster Initialization
 
 `sudo vim /etc/vault.d/vault.env`
 ```bash
@@ -184,6 +204,7 @@ seal "awskms" {
   kms_key_id = "85c75274-f5af-4481-9ee4-cee25b573a88"
 }
 ```
+## Vault Environment Configuration
 
 `sudo vim /etc/vault.d/vault.env`
 ```bash
@@ -264,6 +285,9 @@ seal "awskms" {
 
 ```
 `sudo vim /etc/vault.d/vault.env`
+
+## Vault Environment Configuration
+
 ```bash
 AWS_ACCESS_KEY_ID=YourAccessKey
 AWS_SECRET_ACCESS_KEY=YourAccessKey
@@ -320,7 +344,7 @@ sudo systemctl status haproxy
 sudo vim /etc/haproxy/haproxy.cfg
 ```
 
-```
+```bash
 # ===============================
 # HAProxy for Vault Cluster (HTTP only)
 # ===============================
@@ -390,3 +414,7 @@ curl http://10.70.57.21:8200/v1/sys/health
 ```bash
 http://10.70.57.21:8200/v1/sys/leader
 ```
+
+**Configuration Completed Successfully**
+
+At this stage, the HashiCorp Vault cluster is fully configured with High Availability, Raft storage, and AWS KMS–based auto-unseal. The Vault service is operational, unsealed automatically, and ready for secure application integration through the configured load balancer.
