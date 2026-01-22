@@ -34,10 +34,12 @@
 
 # Vault Installation Guide (SSL Enabled)
 
-![enter image description here](./image/vault-ssl.png)
+<p align="center">
+  <img src="./image/vault-ssl.png" alt="Vault SSL Diagram" />
+</p>
 
 ## 🚀 Overview
-This guide helps you deploy a **production-ready, highly available HashiCorp Vault cluster** on AWS using **3 EC2 instances**, with built-in **AWS KMS auto-unseal**, **Raft storage**, and **self-signed SSL encryption** for secure communication.
+This guide helps you deploy a **production-ready, highly available HashiCorp Vault cluster** on AWS using **Three Node EC2 instances**, with built-in **AWS KMS auto-unseal**, **Raft storage**, and **self-signed SSL encryption** for secure communication.
 
 **Your Vault deployment will provide:**
 -   🔄 **High Availability (HA):** Automatic leader election across multiple nodes for uninterrupted service
@@ -89,7 +91,7 @@ You will need **3 EC2 instances** for a highly available setup:
  ### 2. Create IAM Policy & Role To Use This KMS Key
 
 - Policy should be 
-```
+```bash
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -248,7 +250,7 @@ unzip vault-tls.zip
 ### Move Cert Files To Appropriate Directory On Each node
 
 Place TLS Certificate in config dir for all nodes
-```
+```bash
 sudo mkdir -p /etc/vault.d/tls
 sudo mv vault.crt vault.key /etc/vault.d/tls/
 sudo chown -R vault:vault /etc/vault.d/tls
@@ -257,7 +259,7 @@ sudo chmod 644 /etc/vault.d/tls/vault.crt
 ```
 
 Copy the certificate to the CA directory
-```
+```bash
 sudo cp /etc/vault.d/tls/vault.crt /usr/local/share/ca-certificates/vault.crt
 ```
 
@@ -273,10 +275,10 @@ Since it is self-signed, there is no external Certificate Authority; the certifi
 🗄️ Node-Specific Configuration
 On Vault 1 (`vault1.cloudnativebd.intra`)
 Edit Configuration
-```
+```bash
 vim /etc/vault.d/vault.hcl
 ```
-```
+```bash
 storage "raft" {
   path    = "/data/raft"
   node_id = "vault1"
@@ -315,10 +317,10 @@ ui            = true
 ---
 On Vault 2 (`vault2.cloudnativebd.intra`)
 Edit Configuration
-```
+```bash
 vim /etc/vault.d/vault.hcl
 ```
-```
+```bash
 storage "raft" {
   path    = "/data/raft"
   node_id = "vault2"
@@ -357,10 +359,10 @@ ui            = true
 ---
 On Vault 3 (`vault3.cloudnativebd.intra`)
 Edit Configuration
-```
+```bash
 vim /etc/vault.d/vault.hcl
 ```
-```
+```bash
 storage "raft" {
   path    = "/data/raft"
   node_id = "vault3"
@@ -406,12 +408,12 @@ sudo systemctl status vault
 #### Initialize the Cluster (Vault 1 node)
 - On  **Vault 1 node**
 
-```
+```bash
 export VAULT_ADDR="https://vault1.cloudnativebd.intra:8200"
 export VAULT_SKIP_VERIFY=true
 vault operator init
 ```
-Save Token for vault manual login
+**Save Token for vault manual login**
 
 ```bash
 vault status
@@ -457,13 +459,13 @@ vault3    vault3.cloudnativebd.intra:8201    follower    true
 ## 🛠️ Troubleshooting
 ### If vault2 and vault3 members do not join the raft
 - On Vault 2 node
-```
+```bash
 export VAULT_ADDR="https://vault2.cloudnativebd.intra:8200"
 export VAULT_SKIP_VERIFY=true
 vault operator raft join https://vault1.cloudnativebd.intra:8200
 ```
  - On Vault 3 node
-```
+```bash
 export VAULT_ADDR="https://vault3.cloudnativebd.intra:8200"
 export VAULT_SKIP_VERIFY=true
 vault operator raft join https://vault1.cloudnativebd.intra:8200
@@ -480,11 +482,11 @@ journalctl -xeu vault -f
 ```
 ## 🗳️ Raft Quorum & Leader Checks
 🔍 Check Raft Cluster Status
-```
+```bash
 vault operator raft list-peers
 ```
 **Example Output:**
-```
+```bash
 Node      Address                    State       Voter
 ----      -------                    -----       -----
 vault1    vault1.cloudnativebd.intra:8201    follower    true
@@ -506,7 +508,7 @@ vault3    vault3.cloudnativebd.intra:8201    follower    true
 
 ## 🔨 Resetting a Vault Node’s Raft Storage (Destructive Action)
 Execute On A Node
-```
+```bash
 sudo systemctl stop vault
 rm -rf /data/raft
 rm -rf /opt/vault/data/
@@ -525,7 +527,7 @@ This will
 Audit logs help track all requests and responses to your Vault cluster, which is critical for security, compliance, and troubleshooting.
 ### **1. Create Log Directory**
 Vault needs a directory to store audit files. Run the following commands: (Execute On All Node)
-```
+```bash
 sudo mkdir -p /var/log/vault
 sudo chown vault:vault /var/log/vault
 sudo chmod 750 /var/log/vault
@@ -552,10 +554,10 @@ vault audit enable syslog tag="vault" facility=local0
 -   `facility=local0` allows using a dedicated syslog facility for Vault.
 
 #### Verify
-```
+```bash
 vault audit list
 ```
-```
+```bash
 Path       Type      Description
 ----       ----      -----------
 file/      file      n/a
@@ -563,6 +565,6 @@ syslog/    syslog    n/a
 ```
 
 check logs - on master node
-```
+```bash
 journalctl -xeu vault -f
 ```
